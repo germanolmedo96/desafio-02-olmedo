@@ -61,13 +61,13 @@ class ProductManager {
         const products = await this.getProducts();
         try {
             const product = products.find(product => product.id === id);
-            return product ?
-                product :
-                null;
+            if(product){
+              return  product
+            }
+                throw new Error("Algo salio mal al buscar por id")
         }
-
         catch (err) {
-            console.log(err.message);
+            console.log("no se encontro id");
         }
     }
 
@@ -78,7 +78,7 @@ class ProductManager {
         try {
             const updateProducts = products.map((product) => {
                 if (product.id === id) {
-                    return { ...product, ...newProduct };
+                    return { ...product, id, newProduct };
                 }
                 else {
                     return { ...product }
@@ -97,8 +97,11 @@ class ProductManager {
     deleteProduct = async (id) => {
         let products = await this.getProducts();
         try {
-            products = products.filter(product => product.id != id);
-            await this.writeFile(products);
+            if(!products){
+                products = products.filter(product => product.id != id);
+                await this.writeFile(products);
+            }
+            throw new Error("error al borrar por id, no se encontro el id")
         }
 
         catch (err) {
@@ -127,22 +130,23 @@ const test = async () => {
     console.log(await productos.getProducts(), `producto agregado code: ${producto.code}`);
 
     //Se llama al método “getProductById” y se corroborará que devuelva el producto con el id especificado, en caso de no existir,arroja un error.
-    console.log(await productos.getProductById(13),"por id");
+    console.log(await productos.getProductById(3),"por id");
 
     //Se llama al método “updateProduct” y se intentará cambiar un campo de algún producto, se evaluará que no se elimine el id y que sí se haya hecho la actualización.
     const productoActualizado = {
-        title: "perro",
-        description: "animal",
+        id:"3333",
+        title: "Gatooooo",
+        description: "animalllll",
         price: 800,
         thumbnail: "Sin imagen",
         code: "dev453",
         stock: 20
     };
-    await productos.updateProduct(2, productoActualizado);
+    await productos.updateProduct(1, productoActualizado,"producto actualizado");
     console.log(await productos.getProducts());
 
     //Se llamará al método “deleteProduct”, se evaluará que realmente se elimine el producto o que arroje un error en caso de no existir.
-    await productos.deleteProduct(14);
+    await productos.deleteProduct(12,"ddd");
     console.log(await productos.getProducts());
 }
 
